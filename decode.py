@@ -663,13 +663,73 @@ class LayerData:
         ]
         return msgs
         
-        
-        
+def header(width, height, layers):
+    unpacked_msgs = [
+        UploadFollows.from_values(),
+        F0.from_values(),
+        Start2.from_values(),
+        LightRed.from_values(),
+        Feedrate.from_values(x=0, y=0),
+        E738.from_values(),
+        Laser1TopLeft.from_values(x=0, y=0),
+        Laser1BottomRight.from_values(x=width, y=height),
+        Laser2TopLeft.from_values(x=0, y=0),
+        Laser2BottomRight.from_values(x=width, y=height),
+        E704.from_values(a=1, b=1, x=0, y=0),
+        E705.from_values(),
+    ]
+
+    for layer in layers:
+        unpacked_msgs += layer.to_msg()
+
+    unpacked_msgs += [  
+        LayerCount.from_values(layer_count=len(layers)-1),
+        PenYOffset.from_values  (device=0, y=0),
+        PenYOffset.from_values  (device=1, y=0),
+        LaserYOffset.from_values(device=0, y=0),
+        LaserYOffset.from_values(device=1, y=0),
+        Offset.from_values(x=0, y=0),
+        Start0.from_values(),
+        Start1.from_values(),
+        F200.from_values(),
+        Offset2.from_values(x=0, y=0),
+        BottomRight.from_values(x=width, y=height),
+        F205.from_values(a=1, b=1, x=width, y=height),
+        F206.from_values(x=0, y=0),
+        F207.from_values(),
+        F208.from_values(x=width, y=height),
+        E70A.from_values(a=0),
+        EA00.from_values(),
+        E760.from_values(),
+        E300.from_values(),
+        E70B.from_values(),
+        E713.from_values(a=0, b=0),
+        E717.from_values(a=width, b=height),
+        E723.from_values(a=0, b=0),
+        E724.from_values(),
+        E737.from_values(a=width, b=height),
+        E708.from_values(unknown_a=1, unknown_b=1, x=width, y=height)
+    ]
+    return unpacked_msgs
+
+def scale_power(x):
+    # limit all use cases to 90 % 
+    return int(x * 0.90 / 0.0061)
+
+def footer(width, height):
+    
+    return [
+        E4.from_values(),
+        Finish.from_values(),
+        E700.from_values(),
+        DA01.from_values(a=800, x=width, y=height),
+        EOF.from_values(),
+    ]
     
 class LaserSimulator:
         
     def __init__(self):
-        self.fig = plt.figure(figsize=(10,5))
+        self.fig = plt.figure(figsize=(30,20))
         self.ax = self.fig.add_axes([0.05, 0.05, 0.9, 0.9])
         self.x = 0
         self.y = 0
